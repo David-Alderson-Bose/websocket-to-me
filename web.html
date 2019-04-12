@@ -28,13 +28,14 @@
              alert("WebSocket is supported by your Browser!");
              
              // Let us open a web socket
-             var ws = new WebSocket("ws://localhost:9998/echo");
+             var ws = new WebSocket("ws://localhost:9998/derp");
               
              ws.onopen = function() {
                 
                 // Web Socket is connected, send data using send()
-                ws.send("Message to send");
-                alert("Message is sent...");
+                //ws.send("Message to send");
+                //alert("Message is sent...");
+                alert("connected...");
              };
               
              ws.onmessage = function (evt) { 

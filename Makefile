@@ -10,7 +10,7 @@ INCLUDE = -I./include
 
 
 COMMON_FLAGS += -Wreturn-type #-Wall -Werror
-
+CXX_FLAGS += -std=gnu++11
 
 # Libraries to link against the normal way
 OTHER_LIBS := \
