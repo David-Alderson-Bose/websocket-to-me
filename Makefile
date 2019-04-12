@@ -14,7 +14,7 @@ COMMON_FLAGS += -Wreturn-type #-Wall -Werror
 
 # Libraries to link against the normal way
 OTHER_LIBS := \
-	-lwebsocket 
+	-lwebsockets 
 
 .PHONY: all clean echo
 all: $(EXE)
@@ -22,7 +22,7 @@ all: $(EXE)
 # Link executable
 $(EXE): $(OBJS)
 	@echo 'Linking source file(s) $(OBJS) together into $@...'
-	@$(CXX) $(OBJS) $(COMMON_FLAGS) -rdynamic ${HW_LIBS} ${OTHER_LIBS} -o "$@" 
+	@$(CXX) $(OBJS) $(COMMON_FLAGS) ${OTHER_LIBS} -o "$@" 
 	@echo "Built $@"
 
 # Build cpp
