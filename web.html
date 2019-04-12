@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      
+        
+          
+     </head>
+     
+<body bgcolor="#FFFFFF">
+<!--
+<div id = "sse">
+    <a href = "javascript:WebSocketTest()">Run WebSocket</a>
+</div>
+-->
+<h1>Hi Bose Health!</h1>
+
+<p>my name is eddie and im here to party down</p>
+
+<p id="demo"></p>
+
+<script>
+        var glab = WebSocketTest();
+
+
+       function WebSocketTest() {
+          
+          if ("WebSocket" in window) {
+             alert("WebSocket is supported by your Browser!");
+             
+             // Let us open a web socket
+             var ws = new WebSocket("ws://localhost:9998/echo");
+              
+             ws.onopen = function() {
+                
+                // Web Socket is connected, send data using send()
+                ws.send("Message to send");
+                alert("Message is sent...");
+             };
+              
+             ws.onmessage = function (evt) { 
+                var received_msg = evt.data;
+                alert("Message is received...");
+             };
+              
+             ws.onclose = function() { 
+                
+                // websocket is closed.
+                alert("Connection is closed..."); 
+             };
+          } else {
+            
+             // The browser doesn't support WebSocket
+             alert("WebSocket NOT supported by your Browser!");
+          }
+       }
+    </script>
+
+<script>
+var myVar = setInterval(myTimer, 1000);
+
+function myTimer() {
+  var d = new Date();
+  document.getElementById("demo").innerHTML = d.toLocaleTimeString();
+}
+</script>
+
+
+
+</body>
+</html>
+
+
