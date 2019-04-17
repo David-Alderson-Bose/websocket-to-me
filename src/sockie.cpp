@@ -52,9 +52,7 @@ void signal_handler(int signum)
 
 
 
-static int
-callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
-			void *user, void *in, size_t len)
+static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, void *in, size_t len)
 {
 	std::cout << __LINE__ << ": WOOOOOO" << std::endl;
     per_session_data__minimal *pss =
@@ -64,36 +62,48 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 			lws_protocol_vh_priv_get(lws_get_vhost(wsi),
 					lws_get_protocol(wsi));
 	int m;
+    std::string derp("derp");
+    size_t derpsize = derp.size();
 
     switch (reason) {
+    case LWS_CALLBACK_ESTABLISHED:
+    //case LWS_CALLBACK_ESTABLISHED_CLIENT_HTTP:
+        std::cout << "callback established" << std::endl;
+        lws_callback_on_writable(wsi);
+		break;
+/*
+    case LWS_CALLBACK_CLIENT_ESTABLISHED:
+        std::cout << "Client established" << std::endl;
+        lws_start_foreach_llp(struct per_session_data__minimal **,
+				      ppss, vhd->pss_list) {
+			lws_callback_on_writable((*ppss)->wsi);
+            std::cout << "set a callback" << std::endl;
+		} lws_end_foreach_llp(ppss, pss_list);
+        std::cout << "set ALL callbacks" << std::endl;
+        break;
+*/
+
+    case LWS_CALLBACK_EVENT_WAIT_CANCELLED:
+        std::cout << "wait cancelled" << std::endl;
+        break;
+
+    case LWS_CALLBACK_SERVER_WRITEABLE:
     case LWS_CALLBACK_CLIENT_WRITEABLE:
         std::cout << __LINE__ << ": Client writeable!" << std::endl;
-		if (!vhd->amsg.payload)
-			break;
-
-		if (pss->last == vhd->current)
-			break;
-
-		/* notice we allowed for LWS_PRE in the payload already */
-		m = lws_write(wsi, ((unsigned char *)vhd->amsg.payload) +
-			      LWS_PRE, vhd->amsg.len, LWS_WRITE_TEXT);
-		if (m < (int)vhd->amsg.len) {
+        m = lws_write(wsi, reinterpret_cast<unsigned char*>(const_cast<char*>(derp.data())), derpsize, LWS_WRITE_TEXT);
+		if (m < derpsize) {
 			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
+            std::cout << m << " vs " << derpsize << std::endl;
 			return -1;
 		} 
         std::cout << "Wrote with some successsss!" << std::endl;
-        sleep(1);
+        //sleep(1);
         break;
     
-    case LWS_CALLBACK_SERVER_WRITEABLE:
+   /* case LWS_CALLBACK_SERVER_WRITEABLE:
         std::cout << __LINE__ << ": server writeable!" << std::endl;
-		if (!vhd->amsg.payload)
-			break;
 
-		if (pss->last == vhd->current)
-			break;
-
-		/* notice we allowed for LWS_PRE in the payload already */
+		// notice we allowed for LWS_PRE in the payload already 
 		m = lws_write(wsi, ((unsigned char *)vhd->amsg.payload) +
 			      LWS_PRE, vhd->amsg.len, LWS_WRITE_TEXT);
 		if (m < (int)vhd->amsg.len) {
@@ -103,9 +113,10 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
         std::cout << "Wrote with some successsss!" << std::endl;
         sleep(1);
         break;
-    
+    */
+
     default:
-        std::cerr << __LINE__ << ": I dunno what happened" << std::endl;
+        std::cerr << __LINE__ << ": I dunno what happened! code " << reason << std::endl;
 
     }
     return 0;
@@ -126,7 +137,7 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 // List all acceptible protocols
 // BECAUSE THE DOCS SUCK I DON'T KNOW WHAT ELSE TO PUT HERE!!!!
 static struct lws_protocols protocols[] = {
-	{ "http", lws_callback_http_dummy, 0, 0 },
+	//{ "http", lws_callback_http_dummy, 0, 0 },  //This was a trap!
 	LWS_PLUGIN_PROTOCOL_MINIMAL,
 	{ NULL, NULL, 0, 0 } /* terminator */
 };
@@ -134,7 +145,7 @@ static struct lws_protocols protocols[] = {
 
 static const struct lws_http_mount mount = {
 	/* .mount_next */		NULL,		/* linked-list "next" */
-	/* .mountpoint */		"/derp",		/* mountpoint URL */
+	/* .mountpoint */		"/",//"/derp",		/* mountpoint URL */
 	/* .origin */			NULL,  /* serve from dir */
 	/* .def */			NULL,	/* default filename */
 	/* .protocol */			NULL,
@@ -162,7 +173,7 @@ int do_the_websockie_thang(unsigned int port)
 
     memset(&info, 0, sizeof info); /* otherwise uninitialized garbage */
 	info.port = port;
-	info.mounts = &mount;
+	//info.mounts = &mount;
 	info.protocols = protocols;
 	info.vhost_name = "localhost";
 	info.ws_ping_pong_interval = 10;
