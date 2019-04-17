@@ -69,8 +69,9 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
     case LWS_CALLBACK_ESTABLISHED:
     //case LWS_CALLBACK_ESTABLISHED_CLIENT_HTTP:
         std::cout << "callback established" << std::endl;
-        lws_callback_on_writable(wsi);
-		break;
+        lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
+        //lws_callback_on_writable(wsi);
+        break;
 /*
     case LWS_CALLBACK_CLIENT_ESTABLISHED:
         std::cout << "Client established" << std::endl;
@@ -87,11 +88,14 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
         std::cout << "wait cancelled" << std::endl;
         break;
 
-    case LWS_CALLBACK_SERVER_WRITEABLE:
-    case LWS_CALLBACK_CLIENT_WRITEABLE:
+    case LWS_CALLBACK_TIMER:
+        std::cout << __LINE__ << ": Timer tick (should be 73) -> " << reason << std::endl;
+    //case LWS_CALLBACK_SERVER_WRITEABLE:
+    //case LWS_CALLBACK_CLIENT_WRITEABLE:
         std::cout << __LINE__ << ": Client writeable!" << std::endl;
         m = lws_write(wsi, reinterpret_cast<unsigned char*>(const_cast<char*>(derp.data())), derpsize, LWS_WRITE_TEXT);
-		if (m < derpsize) {
+		lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
+        if (m < derpsize) {
 			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
             std::cout << m << " vs " << derpsize << std::endl;
 			return -1;
