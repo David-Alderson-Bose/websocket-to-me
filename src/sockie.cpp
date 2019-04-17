@@ -1,6 +1,7 @@
+#include <ctime>
 #include <iostream>
 #include <atomic>
-
+#include <sstream>
 
 #include <libwebsockets.h>
 #include <signal.h>
@@ -45,8 +46,14 @@ void signal_handler(int signum)
 
 
 
-
-
+static std::string get_time_str()
+{
+    std::stringstream ss;
+    std::time_t t = std::time(0);  
+    ss << t;
+    
+    return ss.str();
+}
 
 
 
@@ -62,8 +69,8 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
 			lws_protocol_vh_priv_get(lws_get_vhost(wsi),
 					lws_get_protocol(wsi));
 	int m;
-    std::string derp("derp");
-    size_t derpsize = derp.size();
+    unsigned char buf[128];
+    std::string derp(get_time_str());
 
     switch (reason) {
     case LWS_CALLBACK_ESTABLISHED:
@@ -89,18 +96,19 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
         break;
 
     case LWS_CALLBACK_TIMER:
-        std::cout << __LINE__ << ": Timer tick (should be 73) -> " << reason << std::endl;
+        //std::cout << __LINE__ << ": Timer tick (should be 73) -> " << reason << std::endl;
     //case LWS_CALLBACK_SERVER_WRITEABLE:
     //case LWS_CALLBACK_CLIENT_WRITEABLE:
-        std::cout << __LINE__ << ": Client writeable!" << std::endl;
-        m = lws_write(wsi, reinterpret_cast<unsigned char*>(const_cast<char*>(derp.data())), derpsize, LWS_WRITE_TEXT);
+        //std::cout << __LINE__ << ": Client writeable!" << std::endl;
+        memcpy(reinterpret_cast<char*>(buf), derp.c_str(), derp.size());
+        m = lws_write(wsi, buf, derp.size(), LWS_WRITE_TEXT);
 		lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
-        if (m < derpsize) {
+        if (m < derp.size()) {
 			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
-            std::cout << m << " vs " << derpsize << std::endl;
+            std::cout << m << " vs " << derp.size() << std::endl;
 			return -1;
 		} 
-        std::cout << "Wrote with some successsss!" << std::endl;
+        std::cout << "sent '" << derp << "'" << std::endl;
         //sleep(1);
         break;
     

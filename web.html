@@ -16,16 +16,20 @@
 
 <p>my name is eddie and im here to party down</p>
 
-<p id="demo"></p>
+<p id="connection_status"></p>
+
+<p id="last_msg">🐈</p>
+
+<p id="demo">🐕</p>
 
 <script>
-        var glab = WebSocketTest();
+       var ws_test = WebSocketTest();
 
 
        function WebSocketTest() {
           
           if ("WebSocket" in window) {
-             alert("WebSocket is supported by your Browser!");
+             //alert("WebSocket is supported by your Browser!");
              
              // Let us open a web socket
              var ws = new WebSocket("ws://localhost:9998/derp");
@@ -35,18 +39,21 @@
                 // Web Socket is connected, send data using send()
                 //ws.send("Message to send");
                 //alert("Message is sent...");
-                alert("connected...");
+                //alert("connected...");
+                document.getElementById("connection_status").innerHTML = "connected";
              };
               
-             ws.onmessage = function (evt) { 
+             ws.onmessage = function(evt) { 
                 var received_msg = evt.data;
-                alert(received_msg);
+                //alert(received_msg);
+                document.getElementById("last_msg").innerHTML = received_msg.toString(10);
              };
               
              ws.onclose = function() { 
                 
                 // websocket is closed.
-                alert("Connection is closed..."); 
+                //alert("Connection is closed..."); 
+                document.getElementById("connection_status").innerHTML = "disconnected";
              };
           } else {
             
