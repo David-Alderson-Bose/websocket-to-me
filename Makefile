@@ -7,15 +7,24 @@ OBJS += $(patsubst ./src/%.cpp,./build/%.opp,$(wildcard ./src/*.cpp))
 
 # Header locations
 INCLUDE = -I./include
+ifdef CASTLE_INCLUDE
+	INCLUDE += \
+		-I/scratch/components-cache/Release/bose-stable/2.4.1-76+g96380a1/opensource-libwebsockets-qc8017_32/include
+endif
 
+# Extra libraries
+OTHER_LIBS = \
+	-lwebsockets
+ifdef CASTLE_LIB
+	OTHER_LIBS += \
+		-L/scratch/components-cache/Release/bose-stable/2.4.1-76+g96380a1/opensource-libwebsockets-qc8017_32/lib
+endif
 
+# More compile flags
 COMMON_FLAGS += -Wreturn-type #-Wall -Werror
 CXX_FLAGS += -std=gnu++11
 
-# Libraries to link against the normal way
-OTHER_LIBS := \
-	-lwebsockets 
-
+# YOU BIG PHONY
 .PHONY: all clean echo
 all: $(EXE)
 

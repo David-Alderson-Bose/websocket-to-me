@@ -12,15 +12,18 @@
     <a href = "javascript:WebSocketTest()">Run WebSocket</a>
 </div>
 -->
-<h1>Hi Bose Health!</h1>
+<h1>Zzzzz...</h1>
 
-<p>my name is eddie and im here to party down</p>
+<!--p>my name is eddie and im here to party down</p-->
 
 <p id="connection_status"></p>
 
 <p id="last_msg">🐈</p>
 
+<p id="send_count">0</p>
+
 <p id="demo">🐕</p>
+
 
 <script>
        var ws_test = WebSocketTest();
@@ -28,37 +31,45 @@
 
        function WebSocketTest() {
           
-          if ("WebSocket" in window) {
-             //alert("WebSocket is supported by your Browser!");
+            if ("WebSocket" in window) {
+                //alert("WebSocket is supported by your Browser!");
+
+                // Let us open a web socket
+                var ws = new WebSocket("ws://localhost:9998/derp");
+
+                ws.onopen = function() {
+                
+                   // Web Socket is connected, send data using send()
+                   //ws.send("Message to send");
+                   //alert("Message is sent...");
+                   //alert("connected...");
+                   document.getElementById("connection_status").innerHTML = "connected";
+                   var periodicReq = setInterval(reqFromServer, 1000);
+                };
+
+                function reqFromServer() {
+                    ws.send("doesn't matter, really");
+                    var count = parseInt(document.getElementById("send_count").innerHTML, 10);
+                    count += 1;
+                    document.getElementById("send_count").innerHTML = count.toString(10);
+                }
              
-             // Let us open a web socket
-             var ws = new WebSocket("ws://localhost:9998/derp");
-              
-             ws.onopen = function() {
+                ws.onmessage = function(evt) { 
+                   var received_msg = evt.data;
+                   //alert(received_msg);
+                   document.getElementById("last_msg").innerHTML = received_msg.toString(10);
+                };
+
+                ws.onclose = function() { 
                 
-                // Web Socket is connected, send data using send()
-                //ws.send("Message to send");
-                //alert("Message is sent...");
-                //alert("connected...");
-                document.getElementById("connection_status").innerHTML = "connected";
-             };
-              
-             ws.onmessage = function(evt) { 
-                var received_msg = evt.data;
-                //alert(received_msg);
-                document.getElementById("last_msg").innerHTML = received_msg.toString(10);
-             };
-              
-             ws.onclose = function() { 
-                
-                // websocket is closed.
-                //alert("Connection is closed..."); 
-                document.getElementById("connection_status").innerHTML = "disconnected";
-             };
-          } else {
+                   // websocket is closed.
+                   //alert("Connection is closed..."); 
+                   document.getElementById("connection_status").innerHTML = "disconnected";
+                };
+            } else {
             
-             // The browser doesn't support WebSocket
-             alert("WebSocket NOT supported by your Browser!");
+                // The browser doesn't support WebSocket
+                alert("WebSocket NOT supported by your Browser!");
           }
        }
     </script>

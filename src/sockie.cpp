@@ -7,6 +7,13 @@
 #include <signal.h>
 #include <string.h>  // for strsignal
 
+
+// Depending on target, this value may not exist
+#ifndef LWS_USEC_PER_SEC
+    #define LWS_USEC_PER_SEC (1000000ll)
+#endif
+
+
 struct msg {
 	void *payload; /* is malloc'd */
 	size_t len;
@@ -76,7 +83,7 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
     case LWS_CALLBACK_ESTABLISHED:
     //case LWS_CALLBACK_ESTABLISHED_CLIENT_HTTP:
         std::cout << "callback established" << std::endl;
-        lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
+        //lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
         //lws_callback_on_writable(wsi);
         break;
 /*
@@ -91,10 +98,11 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
         break;
 */
 
-    case LWS_CALLBACK_EVENT_WAIT_CANCELLED:
-        std::cout << "wait cancelled" << std::endl;
-        break;
+    //case LWS_CALLBACK_EVENT_WAIT_CANCELLED:
+    //    std::cout << "wait cancelled" << std::endl;
+    //    break;
 
+/*
     case LWS_CALLBACK_TIMER:
         //std::cout << __LINE__ << ": Timer tick (should be 73) -> " << reason << std::endl;
     //case LWS_CALLBACK_SERVER_WRITEABLE:
@@ -103,6 +111,18 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
         memcpy(reinterpret_cast<char*>(buf), derp.c_str(), derp.size());
         m = lws_write(wsi, buf, derp.size(), LWS_WRITE_TEXT);
 		lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
+        if (m < derp.size()) {
+			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
+            std::cout << m << " vs " << derp.size() << std::endl;
+			return -1;
+		} 
+        std::cout << "sent '" << derp << "'" << std::endl;
+        //sleep(1);
+        break;
+*/
+    case LWS_CALLBACK_RECEIVE:
+        memcpy(reinterpret_cast<char*>(buf), derp.c_str(), derp.size());
+        m = lws_write(wsi, buf, derp.size(), LWS_WRITE_TEXT);
         if (m < derp.size()) {
 			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
             std::cout << m << " vs " << derp.size() << std::endl;
@@ -189,8 +209,8 @@ int do_the_websockie_thang(unsigned int port)
 	info.protocols = protocols;
 	info.vhost_name = "localhost";
 	info.ws_ping_pong_interval = 10;
-	info.options =
-		LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
+	//info.options =
+	//	LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
 
     context = lws_create_context(&info);
 	if (!context) {
