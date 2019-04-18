@@ -19,6 +19,9 @@ ifdef CASTLE_LIB
 	OTHER_LIBS += \
 		-L/scratch/components-cache/Release/bose-stable/2.4.1-76+g96380a1/opensource-libwebsockets-qc8017_32/lib
 endif
+#OTHER_LIBS = \
+		-Wl,--whole-archive,/scratch/components-cache/Release/bose-stable/2.4.1-76+g96380a1/opensource-libwebsockets-qc8017_32/lib/libwebsockets.a,--no-whole-archive
+
 
 # More compile flags
 COMMON_FLAGS += -Wreturn-type #-Wall -Werror
