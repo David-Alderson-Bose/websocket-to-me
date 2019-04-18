@@ -81,75 +81,22 @@ static int callback_minimal(lws *wsi, lws_callback_reasons reason, void *user, v
 
     switch (reason) {
     case LWS_CALLBACK_ESTABLISHED:
-    //case LWS_CALLBACK_ESTABLISHED_CLIENT_HTTP:
         std::cout << "callback established" << std::endl;
-        //lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
-        //lws_callback_on_writable(wsi);
         break;
-/*
-    case LWS_CALLBACK_CLIENT_ESTABLISHED:
-        std::cout << "Client established" << std::endl;
-        lws_start_foreach_llp(struct per_session_data__minimal **,
-				      ppss, vhd->pss_list) {
-			lws_callback_on_writable((*ppss)->wsi);
-            std::cout << "set a callback" << std::endl;
-		} lws_end_foreach_llp(ppss, pss_list);
-        std::cout << "set ALL callbacks" << std::endl;
-        break;
-*/
 
-    //case LWS_CALLBACK_EVENT_WAIT_CANCELLED:
-    //    std::cout << "wait cancelled" << std::endl;
-    //    break;
-
-/*
-    case LWS_CALLBACK_TIMER:
-        //std::cout << __LINE__ << ": Timer tick (should be 73) -> " << reason << std::endl;
-    //case LWS_CALLBACK_SERVER_WRITEABLE:
-    //case LWS_CALLBACK_CLIENT_WRITEABLE:
-        //std::cout << __LINE__ << ": Client writeable!" << std::endl;
-        memcpy(reinterpret_cast<char*>(buf), derp.c_str(), derp.size());
-        m = lws_write(wsi, buf, derp.size(), LWS_WRITE_TEXT);
-		lws_set_timer_usecs(wsi, LWS_USEC_PER_SEC);
-        if (m < derp.size()) {
-			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
-            std::cout << m << " vs " << derp.size() << std::endl;
-			return -1;
-		} 
-        std::cout << "sent '" << derp << "'" << std::endl;
-        //sleep(1);
-        break;
-*/
     case LWS_CALLBACK_RECEIVE:
         memcpy(reinterpret_cast<char*>(buf), derp.c_str(), derp.size());
         m = lws_write(wsi, buf, derp.size(), LWS_WRITE_TEXT);
         if (m < derp.size()) {
-			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
+			std::cerr << "AH NUTS it BROOOOKE " << std::endl;
             std::cout << m << " vs " << derp.size() << std::endl;
 			return -1;
 		} 
         std::cout << "sent '" << derp << "'" << std::endl;
-        //sleep(1);
         break;
     
-   /* case LWS_CALLBACK_SERVER_WRITEABLE:
-        std::cout << __LINE__ << ": server writeable!" << std::endl;
-
-		// notice we allowed for LWS_PRE in the payload already 
-		m = lws_write(wsi, ((unsigned char *)vhd->amsg.payload) +
-			      LWS_PRE, vhd->amsg.len, LWS_WRITE_TEXT);
-		if (m < (int)vhd->amsg.len) {
-			std::cerr << "AH PISSSSSS it BROOOOKE " << std::endl;
-			return -1;
-		} 
-        std::cout << "Wrote with some successsss!" << std::endl;
-        sleep(1);
-        break;
-    */
-
     default:
         std::cerr << __LINE__ << ": I dunno what happened! code " << reason << std::endl;
-
     }
     return 0;
 }
