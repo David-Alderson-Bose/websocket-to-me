@@ -20,7 +20,7 @@
 
 <p id="last_msg">🐈</p>
 
-<p id="send_count">0</p>
+<p id="send_count">?</p>
 
 <p id="demo">🐕</p>
 
@@ -30,21 +30,37 @@
 
 
        function WebSocketTest() {
+            var ws;
+            var reconnect = 0;   
+            var periodicReq;     
           
             if ("WebSocket" in window) {
-                //alert("WebSocket is supported by your Browser!");
+                // Attempt to connect
+                ws = new WebSocket("ws://localhost:9998/derp");
 
-                // Let us open a web socket
-                var ws = new WebSocket("ws://localhost:9998/derp");
+                //var retryConnection;
+                ws.onerror = function() {
+                    if (reconnect == 0) {
+                        reconnect = setTimeout(connectRetry, 500);
+                    }
+                }
 
+                function connectRetry() {
+                    console.log("retryin'");
+                    if (ws.readyState === ws.OPEN || ws.readyState === ws.CONNECTING) {
+                        ws.close();
+                    }
+                    clearTimeout(reconnect);
+                    reconnect = 0;
+                    WebSocketTest();
+                }
+          
                 ws.onopen = function() {
-                
-                   // Web Socket is connected, send data using send()
-                   //ws.send("Message to send");
-                   //alert("Message is sent...");
-                   //alert("connected...");
                    document.getElementById("connection_status").innerHTML = "connected";
-                   var periodicReq = setInterval(reqFromServer, 1000);
+                   document.getElementById("send_count").innerHTML = "0";
+                   periodicReq = setInterval(reqFromServer, 1000);
+                   clearTimeout(reconnect);
+                   console.log("opened");
                 };
 
                 function reqFromServer() {
@@ -65,6 +81,11 @@
                    // websocket is closed.
                    //alert("Connection is closed..."); 
                    document.getElementById("connection_status").innerHTML = "disconnected";
+                   clearInterval(periodicReq);
+                   if (reconnect == 0) {
+                        reconnect = setTimeout(connectRetry, 500);
+                    }
+
                 };
             } else {
             
